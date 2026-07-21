@@ -1,0 +1,268 @@
+<div class="helpdesk-layout">
+  
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.open]="isSidebarOpen">
+    <div class="sidebar-header">
+      <div class="logo-icon"></div> <!-- Or use an img -->
+      <span class="sidebar-title">HELPDESK</span>
+    </div>
+
+    <div class="sidebar-menu">
+      
+      <!-- General Dashboard (All Roles) -->
+      <div class="menu-item" [class.active]="activeMenu === 'dashboard'" (click)="setActiveMenu('dashboard')">
+        <div class="menu-label">
+          <span class="material-symbols-rounded">home</span>
+          <span>Dashboard</span>
+        </div>
+      </div>
+
+      @if(currentRole === 'USER' || currentRole === 'ADMIN' || currentRole === 'STAFF') {
+        <div class="menu-item has-submenu" [class.expanded]="expandedMenu === 'user-tiket'">
+          <div class="menu-label" (click)="toggleAccordion('user-tiket')">
+            <span class="material-symbols-rounded">receipt_long</span>
+            <span>Tiket Saya</span>
+            <span class="material-symbols-rounded chevron">arrow_drop_down</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" [class.active]="activeMenu === 'buat-tiket'" (click)="setActiveMenu('buat-tiket')">
+              <span class="dot"></span> Buat Tiket Baru
+            </div>
+            <div class="submenu-item" [class.active]="activeMenu === 'user-semua-tiket'" (click)="setActiveMenu('user-semua-tiket')">
+              <span class="dot"></span> Semua Tiket
+            </div>
+            <div class="submenu-item" [class.active]="activeMenu === 'user-menunggu-approval'" (click)="setActiveMenu('user-menunggu-approval')">
+              <span class="dot"></span> Menunggu Approval
+            </div>
+            <div class="submenu-item" [class.active]="activeMenu === 'user-selesai'" (click)="setActiveMenu('user-selesai')">
+              <span class="dot"></span> Selesai
+            </div>
+            <div class="submenu-item" [class.active]="activeMenu === 'user-ditolak'" (click)="setActiveMenu('user-ditolak')">
+              <span class="dot"></span> Ditolak
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-item has-submenu" [class.expanded]="expandedMenu === 'user-knowledge'">
+          <div class="menu-label" (click)="toggleAccordion('user-knowledge')">
+            <span class="material-symbols-rounded">menu_book</span>
+            <span>Knowledge Base</span>
+            <span class="material-symbols-rounded chevron">arrow_drop_down</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" [class.active]="activeMenu === 'cari-solusi'" (click)="setActiveMenu('cari-solusi')">
+              <span class="dot"></span> Cari Solusi
+            </div>
+          </div>
+        </div>
+
+        <div class="menu-item has-submenu" [class.expanded]="expandedMenu === 'user-survey'">
+          <div class="menu-label" (click)="toggleAccordion('user-survey')">
+            <span class="material-symbols-rounded">star_rate</span>
+            <span>Survey</span>
+            <span class="material-symbols-rounded chevron">arrow_drop_down</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" [class.active]="activeMenu === 'survey-kepuasan'" (click)="setActiveMenu('survey-kepuasan')">
+              <span class="dot"></span> Survey Kepuasan
+            </div>
+          </div>
+        </div>
+      }
+
+      @if(currentRole === 'ADMIN') {
+        <div class="menu-item has-submenu" [class.expanded]="expandedMenu === 'admin-tiket'">
+          <div class="menu-label" (click)="toggleAccordion('admin-tiket')">
+            <span class="material-symbols-rounded">confirmation_number</span>
+            <span>Manajemen Tiket</span>
+            <span class="material-symbols-rounded chevron">arrow_drop_down</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-semua'" (click)="setActiveMenu('admin-semua')"><span class="dot"></span> Semua Tiket</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-open'" (click)="setActiveMenu('admin-open')"><span class="dot"></span> OPEN</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-wait'" (click)="setActiveMenu('admin-wait')"><span class="dot"></span> WAIT (Antrean)</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-forwarded'" (click)="setActiveMenu('admin-forwarded')"><span class="dot"></span> FORWARDED</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-assigned'" (click)="setActiveMenu('admin-assigned')"><span class="dot"></span> ASSIGNED</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-inprogress'" (click)="setActiveMenu('admin-inprogress')"><span class="dot"></span> IN PROGRESS</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-hold'" (click)="setActiveMenu('admin-hold')"><span class="dot"></span> HOLD</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-pending'" (click)="setActiveMenu('admin-pending')"><span class="dot"></span> PENDING APPROVAL</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-approved'" (click)="setActiveMenu('admin-approved')"><span class="dot"></span> APPROVED</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-rejected'" (click)="setActiveMenu('admin-rejected')"><span class="dot"></span> REJECTED</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'admin-closed'" (click)="setActiveMenu('admin-closed')"><span class="dot"></span> CLOSED</div>
+          </div>
+        </div>
+
+        <div class="menu-item has-submenu" [class.expanded]="expandedMenu === 'admin-staff'">
+          <div class="menu-label" (click)="toggleAccordion('admin-staff')">
+            <span class="material-symbols-rounded">group</span>
+            <span>Manajemen Staff</span>
+            <span class="material-symbols-rounded chevron">arrow_drop_down</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" [class.active]="activeMenu === 'daftar-staff'" (click)="setActiveMenu('daftar-staff')"><span class="dot"></span> Daftar Staff</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'status-staff'" (click)="setActiveMenu('status-staff')"><span class="dot"></span> Status Staff</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'beban-kerja'" (click)="setActiveMenu('beban-kerja')"><span class="dot"></span> Beban Kerja</div>
+          </div>
+        </div>
+
+        <div class="menu-item has-submenu" [class.expanded]="expandedMenu === 'admin-laporan'">
+          <div class="menu-label" (click)="toggleAccordion('admin-laporan')">
+            <span class="material-symbols-rounded">analytics</span>
+            <span>Laporan & Analitik</span>
+            <span class="material-symbols-rounded chevron">arrow_drop_down</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" [class.active]="activeMenu === 'statistik-tiket'" (click)="setActiveMenu('statistik-tiket')"><span class="dot"></span> Statistik Tiket</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'rata-waktu'" (click)="setActiveMenu('rata-waktu')"><span class="dot"></span> Rata-rata Waktu</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'rating-staff'" (click)="setActiveMenu('rating-staff')"><span class="dot"></span> Rating Staff</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'export-laporan'" (click)="setActiveMenu('export-laporan')"><span class="dot"></span> Export Laporan</div>
+          </div>
+        </div>
+      }
+
+      @if(currentRole === 'STAFF') {
+        <div class="menu-item has-submenu" [class.expanded]="expandedMenu === 'staff-tiket'">
+          <div class="menu-label" (click)="toggleAccordion('staff-tiket')">
+            <span class="material-symbols-rounded">build</span>
+            <span>Tiket Saya</span>
+            <span class="material-symbols-rounded chevron">arrow_drop_down</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" [class.active]="activeMenu === 'staff-assigned'" (click)="setActiveMenu('staff-assigned')"><span class="dot"></span> ASSIGNED</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'staff-inprogress'" (click)="setActiveMenu('staff-inprogress')"><span class="dot"></span> IN PROGRESS</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'staff-hold'" (click)="setActiveMenu('staff-hold')"><span class="dot"></span> HOLD</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'staff-pending'" (click)="setActiveMenu('staff-pending')"><span class="dot"></span> PENDING APPROVAL</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'staff-rejected'" (click)="setActiveMenu('staff-rejected')"><span class="dot"></span> REJECTED</div>
+            <div class="submenu-item" [class.active]="activeMenu === 'staff-closed'" (click)="setActiveMenu('staff-closed')"><span class="dot"></span> CLOSED</div>
+          </div>
+        </div>
+
+        <div class="menu-item has-submenu" [class.expanded]="expandedMenu === 'staff-survey'">
+          <div class="menu-label" (click)="toggleAccordion('staff-survey')">
+            <span class="material-symbols-rounded">workspace_premium</span>
+            <span>Survey Kepuasan</span>
+            <span class="material-symbols-rounded chevron">arrow_drop_down</span>
+          </div>
+          <div class="submenu">
+            <div class="submenu-item" [class.active]="activeMenu === 'rating-saya'" (click)="setActiveMenu('rating-saya')"><span class="dot"></span> Rating Saya</div>
+          </div>
+        </div>
+      }
+
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper" [class.sidebar-open]="isSidebarOpen">
+    
+    <!-- Top Navbar -->
+    <header class="top-header">
+      <div class="header-left">
+        <button class="menu-toggle" (click)="toggleSidebar()">
+          <span class="material-symbols-rounded">menu</span>
+        </button>
+        <h1 class="erp-title">ENTERPRISE RESOURCE PLANNING</h1>
+      </div>
+    </header>
+
+    <!-- Breadcrumb Bar -->
+    <div class="breadcrumb-bar">
+      <div class="breadcrumb-container">
+        <a routerLink="/dashboard" class="home-link">
+          <span class="material-symbols-rounded">home</span>
+          <span class="link-text">Main Menu</span>
+        </a>
+        <span class="separator">|</span>
+        <span class="current-page">HELPDESK</span>
+      </div>
+    </div>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      
+      <!-- Role Switcher (For Demo Purposes) -->
+      <div style="padding: 15px 0; display: flex; gap: 10px; align-items: center;">
+        <span style="font-weight: 600; color: #1a2b3c;">Simulasi Role:</span>
+        <button (click)="setRole('USER')" [style.background]="currentRole === 'USER' ? '#ff6b00' : '#e0e0e0'" [style.color]="currentRole === 'USER' ? '#fff' : '#333'" style="border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600;">USER</button>
+        <button (click)="setRole('ADMIN')" [style.background]="currentRole === 'ADMIN' ? '#ff6b00' : '#e0e0e0'" [style.color]="currentRole === 'ADMIN' ? '#fff' : '#333'" style="border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600;">ADMIN DEPT</button>
+        <button (click)="setRole('STAFF')" [style.background]="currentRole === 'STAFF' ? '#ff6b00' : '#e0e0e0'" [style.color]="currentRole === 'STAFF' ? '#fff' : '#333'" style="border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600;">STAFF / TEKNISI</button>
+      </div>
+
+      @if(activeMenu === 'buat-tiket') {
+        <div class="content-card form-card">
+          <div class="card-header">
+            <h2 class="card-title">Buat Tiket Baru</h2>
+            <p class="card-subtitle">Silakan isi formulir di bawah ini untuk melaporkan masalah atau permintaan baru.</p>
+          </div>
+
+          <form class="ticket-form" (ngSubmit)="$event.preventDefault()">
+            
+            <div class="form-group">
+              <label for="judul">Judul Tiket <span class="required">*</span></label>
+              <input type="text" id="judul" placeholder="Contoh: Komputer tidak bisa menyala" class="form-control">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group half">
+                <label for="kategori">Kategori <span class="required">*</span></label>
+                <select id="kategori" class="form-control">
+                  <option value="" disabled selected>Pilih Kategori</option>
+                  <option value="hardware">Hardware</option>
+                  <option value="software">Software</option>
+                  <option value="network">Jaringan (Network)</option>
+                  <option value="other">Lainnya</option>
+                </select>
+              </div>
+
+              <div class="form-group half">
+                <label for="departemen">Departemen Tujuan <span class="required">*</span></label>
+                <select id="departemen" class="form-control">
+                  <option value="" disabled selected>Pilih Departemen</option>
+                  <option value="it">IT Support</option>
+                  <option value="ga">General Affair (GA)</option>
+                  <option value="hr">Human Resources (HR)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="deskripsi">Deskripsi Detail <span class="required">*</span></label>
+              <textarea id="deskripsi" rows="5" placeholder="Jelaskan masalah Anda secara detail..." class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="lampiran">Lampiran Tambahan (Opsional)</label>
+              <div class="file-upload-wrapper">
+                <input type="file" id="lampiran" class="file-input" accept=".jpg,.png,.pdf,.doc,.docx">
+                <div class="file-upload-box">
+                  <span class="material-symbols-rounded">cloud_upload</span>
+                  <span>Klik atau Drag & Drop file ke sini</span>
+                  <small>Maksimal 5MB (JPG, PNG, PDF, DOCX)</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-outline" (click)="setActiveMenu('dashboard')">Batal</button>
+              <button type="submit" class="btn btn-primary">
+                <span class="material-symbols-rounded">send</span> Submit Tiket
+              </button>
+            </div>
+
+          </form>
+        </div>
+      } @else {
+        <!-- Placeholder content for other menus -->
+        <div class="content-card" style="min-height: 400px; display: flex; align-items: center; justify-content: center; color: #adb5bd;">
+          <div style="text-align: center;">
+            <span class="material-symbols-rounded" style="font-size: 48px; margin-bottom: 10px; display: block;">construction</span>
+            <h3 style="margin: 0; color: #6c757d; font-weight: 500;">Modul belum tersedia</h3>
+          </div>
+        </div>
+      }
+
+    </main>
+
+  </div>
+
+</div>

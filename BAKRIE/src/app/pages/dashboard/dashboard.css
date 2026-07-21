@@ -1,0 +1,333 @@
+ /* ===========================
+   LOGO
+=========================== */
+
+.logo-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  transform: translateY(40px);
+}
+
+.main-logo {
+  max-width: 180px;
+  height: auto;
+  filter: drop-shadow(0 0 15px rgba(249, 136, 23, 0.4)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+  transition: filter 0.3s ease;
+}
+
+.main-logo:hover {
+  filter: drop-shadow(0 0 25px rgba(249, 136, 23, 0.65)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+}
+
+
+
+/* ===========================
+   GRID
+=========================== */
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+
+  row-gap: 20px;
+  column-gap: 40px;
+
+  width: 100%;
+
+  margin: 0 auto;
+
+  justify-content: center;
+  justify-items: center;
+  align-content: start;
+}
+
+@media (min-width: 1024px) {
+  .modules-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ===========================
+   CARD
+=========================== */
+
+.module-card {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  height: 140px;
+
+  border-radius: 14px;
+  overflow: hidden;
+
+  background: var(--card-bg);
+
+  border: 2px solid #7D91B5;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, .15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+
+  cursor: pointer;
+  text-align: center;
+
+  position: relative;
+
+  transition:
+    transform .30s ease,
+    box-shadow .30s ease;
+}
+
+.module-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .30);
+}
+
+/* ===========================
+   ICON
+=========================== */
+
+.card-icon-container {
+  flex: 1;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 8px;
+  min-height: 65px;
+}
+
+.card-img-icon {
+  width: 70px;
+  height: 70px;
+
+  object-fit: contain;
+
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .25));
+
+  transition: transform .30s ease;
+}
+
+.module-card:hover .card-img-icon {
+  transform: scale(1.08);
+}
+
+/* ===========================
+   TITLE
+=========================== */
+
+.module-card-title {
+  background: var(--primary);
+  color: #fff;
+
+  /* Text Stroke */
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.35);
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.35);
+
+  height: 34px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 6px 5px;
+
+  font-size: .75rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: .5px;
+
+  border-top: 1.5px solid var(--border-light);
+  border-radius: 8px 8px 0 0;
+
+  transition:
+    background .25s ease,
+    color .25s ease;
+}
+
+/* ===========================
+   NEXT & PREVIOUS
+=========================== */
+
+.next-card,
+.prev-card {
+  background: var(--card-bg);
+  border: 1.5px solid var(--border-light);
+}
+
+/* ===========================
+   ICON FLIP
+=========================== */
+
+.flip-horizontal {
+  transform: scaleX(-1);
+}
+
+.module-card:hover .flip-horizontal {
+  transform: scaleX(-1) scale(1.08);
+}
+
+/* ===========================
+   MOBILE RESPONSIVENESS
+=========================== */
+@media (max-width: 768px) {
+  .logo-header {
+    transform: translateY(10px);
+    margin-bottom: 5px;
+  }
+
+  .main-logo {
+    max-width: 90px;
+  }
+
+
+
+  .modules-grid {
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 12px;
+    row-gap: 6px;
+    /* Diperkecil agar muat 7 baris */
+  }
+
+  .module-card {
+    height: 68px;
+    /* Diperkecil dari 80px */
+    border-radius: 8px;
+    border-width: 1px;
+  }
+
+  .card-icon-container {
+    min-height: 42px;
+    /* Diperkecil dari 52px */
+    padding: 4px;
+  }
+
+  .card-img-icon {
+    width: 26px;
+    /* Diperkecil dari 32px */
+    height: 26px;
+  }
+
+  .module-card-title {
+    height: auto;
+    min-height: 26px;
+    font-size: 0.42rem !important; /* Lebih kecil agar muat */
+    padding: 4px 2px;
+    border-top: 1px solid var(--border-light);
+    letter-spacing: 0;
+    text-shadow: none !important; 
+    -webkit-text-stroke: 0px transparent !important;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+/* ===========================
+   KHUSUS MOBILE LAYAR PENDEK (iPhone SE, dll)
+   Mengecilkan kartu agar muat dalam 1 layar tanpa scroll
+=========================== */
+@media (max-width: 768px) and (max-height: 720px) {
+  .logo-header {
+    transform: translateY(5px);
+    margin-bottom: 0;
+  }
+
+  .main-logo {
+    max-width: 75px; /* Susutkan logo utama */
+  }
+
+  .modules-grid {
+    column-gap: 8px;
+    row-gap: 4px; /* Rapatkan celah vertikal lebih drastis */
+  }
+
+  .module-card {
+    height: 54px; /* Kartu dipendekkan drastis untuk 7 baris */
+    border-radius: 6px;
+  }
+
+  .card-icon-container {
+    min-height: 32px;
+    padding: 2px;
+  }
+
+  .card-img-icon {
+    width: 20px; /* Perkecil ikon */
+    height: 20px;
+  }
+
+  .module-card-title {
+    min-height: 20px;
+    font-size: 0.38rem !important; /* Perkecil font */
+    padding: 2px 1px;
+  }
+}
+
+/* ===========================
+   TV & TABLET RESPONSIVENESS (Nest Hub & Nest Hub Max)
+=========================== */
+@media (max-width: 1440px) and (min-width: 769px) {
+  
+  /* Aktifkan scroll di TV/Tablet tapi sembunyikan scrollbarnya */
+  .dashboard-container {
+    display: flex !important;
+    flex-direction: column !important;
+    /* FIX ABSOLUT: Kunci viewport tepat seukuran layar (100vh - 70px navbar) 
+       agar scroll ganda benar-benar mati. Tidak ada hack margin negatif. */
+    height: calc(100vh - 70px) !important; 
+    margin-bottom: 0 !important; 
+    overflow-y: auto !important;
+    -ms-overflow-style: none !important;  
+    scrollbar-width: none !important;  
+    padding-bottom: 0 !important; 
+  }
+
+  .dashboard-container::-webkit-scrollbar {
+    display: none !important; 
+  }
+
+  :host .glass-container {
+    width: 102% !important;
+    max-width: none !important;
+    margin: 50px 0 0 0 !important; 
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    padding: 30px 25px 0px 25px !important; 
+    border-radius: 32px !important; 
+    
+    /* Kaca mengisi tepat sisa layar tanpa memicu scroll buatan */
+    flex: 1 !important;
+    min-height: min-content !important; 
+    
+    /* Card dijamin selalu menempel di atas (menyatu dengan logo) */
+    align-items: flex-start !important; 
+  }
+
+  .modules-grid {
+    column-gap: 20px;
+    row-gap: 20px;
+    grid-template-columns: repeat(6, 1fr);
+    width: 100% !important;
+    margin-top: 0 !important; /* Kunci 3: Pastikan card tidak pernah melorot ke bawah */
+  }
+
+  /* Pendorong fisik murni: 35px (terhalang footer) + 20px celah murni = 55px */
+  .modules-grid::after {
+    content: '';
+    display: block;
+    height: 55px;
+    width: 100%;
+    grid-column: 1 / -1; 
+  }
+
+  .main-logo {
+    max-width: 140px;
+  }
+}

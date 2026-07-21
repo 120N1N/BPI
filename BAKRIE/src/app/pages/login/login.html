@@ -1,0 +1,59 @@
+<div class="login-container">
+  <div class="left-panel">
+    <!-- Outer background waves for left panel depth -->
+    <div class="login-wave wave-1"></div>
+    <div class="login-wave wave-2"></div>
+    <div class="login-wave wave-3"></div>
+    <div class="login-wave wave-4"></div>
+    <div class="login-dots"></div>
+    
+    <div class="logo-container">
+      <img src="/assets/erp_logo.png" alt="Enterprise Resource Planning" class="erp-logo-img">
+      <h2>BAKRIE PIPE INDUSTRIES<br>ENTERPRISE RESOURCE PLANNING</h2>
+    </div>
+  </div>
+  
+  <div class="right-panel">
+    <div class="login-box">
+      <h2>Masuk ke akun Anda</h2>
+      <p class="subtitle">Silakan masukkan kredensial Anda di bawah ini</p>
+      
+      <!-- Pesan Error Dinamis -->
+      <div class="error-message" *ngIf="errorMessage">
+        <span class="material-symbols-rounded">error</span>
+        {{ errorMessage }}
+      </div>
+
+      <form class="login-form" (submit)="onLogin($event)">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <!-- Hapus HTML5 required agar error buatan kita (Angular) yang muncul -->
+          <input type="text" id="username" name="username" [(ngModel)]="username" autocomplete="off"
+                 [class.is-invalid]="hasUsernameError()">
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Kata sandi</label>
+          <div class="password-wrapper">
+            <input [type]="isPasswordVisible ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
+                   [class.is-invalid]="hasPasswordError()">
+            <span class="material-symbols-rounded eye-icon" (click)="togglePassword()">
+              {{ isPasswordVisible ? 'visibility_off' : 'visibility' }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="form-group remember-me">
+          <label class="checkbox-container">
+            <input type="checkbox" checked>
+            <span class="checkmark"></span>
+            Ingat saya
+          </label>
+        </div>
+        
+        <button type="submit" class="btn-submit">Masuk</button>
+      </form>
+    </div>
+    <p class="terms">Dengan masuk, Anda menyetujui Ketentuan dan Kebijakan Privasi.</p>
+  </div>
+</div>

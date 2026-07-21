@@ -1,0 +1,77 @@
+<div class="dashboard-container">
+
+  <div class="logo-header">
+    <img 
+      src="/assets/bakrie_logo.png" 
+      alt="Bakrie Pipe Industries" 
+      class="main-logo">
+  </div>
+
+
+  <div class="glass-container">
+
+    <div class="modules-grid">
+
+      @if (showSubModules) {
+
+        <!-- PREVIOUS BUTTON -->
+        <a 
+          (click)="toggleSubModules()" 
+          class="module-card prev-card">
+
+          <div class="card-icon-container">
+            <img 
+              src="/assets/icons/next.png" 
+              alt="PREVIOUS"
+              class="card-img-icon flip-horizontal">
+          </div>
+
+          <div class="module-card-title">
+            PREVIOUS
+          </div>
+
+        </a>
+
+      }
+
+
+      @for(module of (showSubModules ? subModules : mainModules); track module.name) {
+        <div class="module-card" (click)="navigateToModule(module.name)">
+
+          <div class="card-icon-container">
+            <img 
+              [src]="module.icon"
+              [alt]="module.name"
+              class="card-img-icon">
+          </div>
+
+
+          <div class="module-card-title">
+            {{ module.name }}
+          </div>
+
+        </div>
+
+      }
+
+
+      @if (!showSubModules) {
+
+        <!-- NEXT BUTTON -->
+        <a 
+          (click)="toggleSubModules()" 
+          class="module-card next-card">
+          <div class="card-icon-container">
+            <img 
+              src="/assets/icons/next.png"
+              alt="NEXT"
+              class="card-img-icon">
+          </div>
+          <div class="module-card-title">
+            NEXT
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+</div>

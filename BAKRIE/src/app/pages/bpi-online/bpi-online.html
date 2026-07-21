@@ -1,0 +1,62 @@
+<div class="bpi-container">
+  <!-- Top Header Bar dihapus karena sekarang memakai Global Navbar -->
+
+  <!-- Banner Card -->
+  <div class="bpi-banner">
+    <!-- Abstract wave backgrounds created with absolute CSS elements -->
+    <div class="banner-wave wave-1"></div>
+    <div class="banner-wave wave-2"></div>
+    <div class="banner-wave wave-3"></div>
+    <div class="banner-wave wave-4"></div>
+    <div class="banner-dots"></div>
+
+    <!-- Centered Avatar -->
+    <div class="avatar-wrapper">
+      <svg class="avatar-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="50" fill="white" />
+        <circle cx="50" cy="38" r="18" fill="#30475e" />
+        <path
+          d="M50 60 C 30 60, 22 72, 22 84 C 22 85, 23 85, 24 85 L 76 85 C 77 85, 78 85, 78 84 C 78 72, 70 60, 50 60 Z"
+          fill="#30475e" />
+      </svg>
+    </div>
+
+    <!-- Quick Actions at the bottom of the banner -->
+    <div class="quick-actions-bar">
+      @for(action of quickActions; track action.name) {
+      <div class="quick-action-item">
+        <div class="action-icon-circle">
+          @if(action.isSvg && action.icon === 'whatsapp') {
+          <svg class="action-svg-icon" viewBox="0 0 24 24">
+            <path fill="currentColor"
+              d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 0 0 1.333 4.982L2 22l5.202-1.362a9.92 9.92 0 0 0 4.81 1.242h.005c5.502 0 9.99-4.478 9.99-9.986 0-2.67-1.037-5.177-2.92-7.062C17.205 3.036 14.7 2 12.012 2zm5.727 14.077c-.255.714-1.27 1.306-1.748 1.385-.477.078-1.096.115-3.238-.772-2.73-1.134-4.48-3.92-4.616-4.101-.135-.181-1.1-1.462-1.1-2.785 0-1.323.682-1.973.953-2.244.271-.271.603-.339.804-.339.202 0 .404.002.578.01.183.008.432-.072.676.516.25.597.85 2.072.923 2.222.074.15.123.324.024.522-.099.198-.148.324-.298.497-.15.172-.315.385-.45.516-.15.15-.308.314-.133.613.176.3.78 1.282 1.67 2.075.148.132.274.223.424.314.15.092.308.15.485.062.176-.088.756-.88.959-1.18.2-.303.4-.253.676-.153.277.1.1.758 1.764 1.58.15.074.25.123.324.234.074.11.074.643-.18 1.357z" />
+          </svg>
+          } @else {
+          <span class="material-symbols-rounded">{{action.icon}}</span>
+          }
+        </div>
+        <div class="action-label">{{action.name}}</div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Section Title -->
+  <div class="section-header">
+    <h2 class="section-title">My Application</h2>
+  </div>
+
+  <!-- Application Grid Card -->
+  <div class="apps-card">
+    <div class="apps-grid">
+      @for(app of applications; track app.name) {
+      <div class="app-item">
+        <div class="app-icon-wrapper">
+          <span class="material-symbols-rounded app-icon">{{app.icon}}</span>
+        </div>
+        <div class="app-name">{{app.name}}</div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
