@@ -1,0 +1,108 @@
+<div class="layout-wrapper">
+  <!-- Top Navbar -->
+  <header class="top-navbar" [ngClass]="{'bpi-navbar': isBpiOnlineRoute}">
+    @if(isBpiOnlineRoute) {
+    <!-- Simplified Navbar for BPI Online -->
+    <div class="navbar-left"></div>
+    <div class="navbar-center">
+      <span class="system-title">BPI Online</span>
+    </div>
+    <div class="navbar-right">
+      <button class="menu-btn" routerLink="/dashboard">
+        <span class="material-symbols-rounded">undo</span>
+      </button>
+    </div>
+    } @else {
+    <!-- Standard Navbar for Dashboard and other pages -->
+    <div class="navbar-left">
+      <div class="user-greeting">
+        <span class="welcome-text">Welcome back,</span>
+        <span class="user-name">{{user.name}}</span>
+      </div>
+    </div>
+
+    <div class="navbar-center">
+      <span class="system-title"><span class="highlight-orange">e-Pipe</span><span class="system-sub-title"> Enterprise Pipe Application System</span><span class="system-sub-title-mobile"><br>Enterprise Pipe<br>Application System</span></span>
+    </div>
+
+    <div class="navbar-right">
+      <!-- Global Search -->
+      <div class="search-container">
+        <span class="material-symbols-rounded search-icon">search</span>
+        <input type="text" placeholder="Search" class="search-input">
+      </div>
+
+      <!-- Menu Toggle Button -->
+      <button class="menu-btn" (click)="toggleMenu()">
+        <span class="material-symbols-rounded">menu</span>
+      </button>
+    </div>
+    }
+  </header>
+
+  @if(isMenuOpen) {
+  <!-- Backdrop transparan untuk mendeteksi klik di luar menu -->
+  <div class="menu-backdrop" (click)="isMenuOpen = false; isNotifOpen = false"></div>
+  <div class="expanded-menu">
+    <div class="expanded-menu-item" (click)="toggleNotif()">
+      <span>Notifikasi</span>
+
+      @if(isNotifOpen) {
+      <div class="notif-popup" (click)="$event.stopPropagation()">
+        <div class="notif-header">
+          <h4>Notifikasi</h4>
+          <a href="#" class="mark-read" (click)="markAllAsRead($event)">Tandai semua dibaca</a>
+        </div>
+        <div class="notif-tabs">
+          <div class="notif-tab" [class.active]="activeNotifTab === 'belum'" (click)="activeNotifTab = 'belum'">Belum
+            dibaca (0)</div>
+          <div class="notif-tab" [class.active]="activeNotifTab === 'semua'" (click)="activeNotifTab = 'semua'">Semua
+          </div>
+        </div>
+        <div class="notif-content">
+          @if(activeNotifTab === 'belum') {
+          <!-- Content Belum dibaca -->
+          } @else {
+          <!-- Content Semua -->
+          }
+        </div>
+      </div>
+      }
+    </div>
+    <a routerLink="/profile" class="expanded-menu-item" (click)="isMenuOpen = false">Profile</a>
+    <a routerLink="/bpi-online" class="expanded-menu-item" (click)="isMenuOpen = false">BPI Online</a>
+    @if(user.role === 'admin' || user.role === 'admin_dept' || user.role === 'ADMIN') {
+    <a routerLink="/reports" class="expanded-menu-item" (click)="isMenuOpen = false">Laporan & Analitik</a>
+    }
+    <div class="expanded-menu-logout">
+      <a href="#" class="logout-bar" (click)="showLogoutConfirm($event)">Log Out</a>
+    </div>
+  </div>
+  }
+
+  <!-- Modal Validasi Logout (Glassmorphism & Attractive) -->
+  @if(isLogoutModalOpen) {
+  <div class="modal-overlay" (click)="cancelLogout()">
+    <div class="modal-glass-card" (click)="$event.stopPropagation()">
+      <div class="modal-icon-wrapper">
+        <span class="material-symbols-rounded modal-icon">logout</span>
+      </div>
+      <h3 class="modal-title">Konfirmasi Log Out</h3>
+      <p class="modal-text">Apakah Anda yakin ingin keluar dari e-Pipe Enterprise? Sesi Anda akan diakhiri.</p>
+
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="cancelLogout()">Batal</button>
+        <button class="btn-modal-confirm" (click)="confirmLogout()">Ya, Log Out</button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="footer" [class.footer-hidden]="isLogoutModalOpen">
+    Copyright &copy; 2022. IT Division - PT Bakrie Pipe Industries
+  </footer>
+</div>

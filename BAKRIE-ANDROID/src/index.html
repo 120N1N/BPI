@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>BakrieApp</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    /* Lock root to prevent rubber-banding on iOS */
+    html, body { overscroll-behavior: none; }
+  </style>
+</head>
+<body>
+  <app-root></app-root>
+  
+  <script>
+    // Prevent Desktop Zoom via Mouse Wheel
+    document.addEventListener('wheel', function(e) {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Prevent Desktop Zoom via Keyboard (Ctrl + '+', Ctrl + '-', Ctrl + '0')
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '-' || e.key === '0')) {
+        e.preventDefault();
+      }
+    });
+  </script>
+</html>
