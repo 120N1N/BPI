@@ -5,18 +5,38 @@ import { UserProfile } from '../models/user.model';
   providedIn: 'root'
 })
 export class UserService {
-  private user: UserProfile = {
-    name: 'Darrel Khayru Adityansah',
-    division: 'IT Division',
-    email: 'DarrelKhayruadityansah@bakrie.ac.id',
-    nip: '1234',
-    role: 'Karyawan',
-    joinDate: '12/12/2012',
-    lastLogin: '01/07/2026',
-    status: 'ACTIVE'
-  };
-
   getUserProfile(): UserProfile {
-    return { ...this.user };
+    // Ambil data asli dari localStorage yang disimpan saat login
+    const storedData = localStorage.getItem('user_data');
+    
+    // Default fallback jika belum login atau data kosong
+    const defaultUser: UserProfile = {
+      name: 'Pengguna',
+      division: '-',
+      email: '-',
+      nip: '-',
+      role: 'Karyawan',
+      joinDate: '-',
+      lastLogin: new Date().toLocaleDateString('id-ID'),
+      status: 'ACTIVE'
+    };
+
+    if (storedData) {
+      try {
+        const parsed = JSON.parse(storedData);
+        // Gabungkan data dari backend dengan struktur default
+        return {
+          ...defaultUser,
+          name: parsed.nama_lengkap || parsed.name || parsed.email || defaultUser.name,
+          nip: parsed.id_karyawan || parsed.nip || parsed.email || defaultUser.nip, // SSMS NIP disimpan di email
+          email: parsed.email || defaultUser.email,
+          role: (parsed.role && parsed.role.length > 0) ? parsed.role[0] : defaultUser.role,
+        };
+      } catch (e) {
+        return defaultUser;
+      }
+    }
+    
+    return defaultUser;
   }
 }

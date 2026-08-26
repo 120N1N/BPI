@@ -1,0 +1,80 @@
+<div class="reports-container">
+  <div class="header-section">
+    <div class="header-titles">
+      <h1>Laporan & Analitik</h1>
+      <p>Rekapitulasi data tiket bantuan BPI Helpdesk</p>
+    </div>
+    <div class="filter-controls">
+      <select [(ngModel)]="selectedMonth" class="filter-select">
+        <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+      </select>
+      <select [(ngModel)]="selectedYear" class="filter-select">
+        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+      </select>
+      <button class="btn-filter" (click)="applyFilter()">Terapkan Filter</button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Memuat data analitik...</p>
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="error-state">
+    <p>{{ errorMessage }}</p>
+    <button (click)="loadReports()" class="btn-retry">Coba Lagi</button>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage" class="dashboard-content">
+    
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="card">
+        <div class="card-icon blue">📅</div>
+        <div class="card-info">
+          <h3>Hari Ini</h3>
+          <h2>{{ summary.daily }} <span>Tiket</span></h2>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-icon green">📅</div>
+        <div class="card-info">
+          <h3>Bulan Ini</h3>
+          <h2>{{ summary.monthly }} <span>Tiket</span></h2>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-icon purple">📅</div>
+        <div class="card-info">
+          <h3>Tahun Ini</h3>
+          <h2>{{ summary.yearly }} <span>Tiket</span></h2>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-icon orange">📊</div>
+        <div class="card-info">
+          <h3>Total Keseluruhan</h3>
+          <h2>{{ summary.total }} <span>Tiket</span></h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+      <div class="chart-card">
+        <h3>Proporsi Status Tiket</h3>
+        <div class="chart-wrapper">
+          <canvas baseChart
+            [data]="pieChartData"
+            [options]="pieChartOptions"
+            [type]="'pie'">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -334,3 +334,34 @@ input[type="checkbox"]:checked::before {
   70% { box-shadow: 0 0 0 6px rgba(224, 36, 36, 0); }
   100% { box-shadow: 0 0 0 0 rgba(224, 36, 36, 0); }
 }
+
+/* =========================================================
+   MOBILE SCALING FIXES
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Mengecilkan root font-size untuk penyesuaian font berbasis 'rem' secara proporsional */
+  html {
+    font-size: 14px !important;
+  }
+  
+  /* Modal dan popup dibuat selebar layar, bukan di-scale */
+  .notif-dropdown, .bulk-action-bar, .modal, .popup {
+    width: 95% !important;
+    left: 2.5% !important;
+    right: auto !important;
+    transform: none !important;
+  }
+
+  /* Container utama (seperti helpdesk) dipangkas paddingnya */
+  .glass-container {
+    padding: 10px 10px 50px !important;
+  }
+
+  /* Pastikan touch target tombol tetap nyaman ditekan jari (minimal 44px tinggi) */
+  button {
+    min-height: 44px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    transform: none !important;
+  }
+}

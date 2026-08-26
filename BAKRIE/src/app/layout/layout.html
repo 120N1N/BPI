@@ -32,11 +32,9 @@
         <input type="text" placeholder="Search" class="search-input">
       </div>
 
-      <!-- Menu Toggle Button with Notification Badge -->
+      <!-- Menu Toggle Button -->
       <button class="menu-btn" (click)="toggleMenu()">
         <span class="material-symbols-rounded">menu</span>
-        <!-- Active notification indicator -->
-        <span class="notification-badge">1</span>
       </button>
     </div>
     }
@@ -73,6 +71,9 @@
     </div>
     <a routerLink="/profile" class="expanded-menu-item" (click)="isMenuOpen = false">Profile</a>
     <a routerLink="/bpi-online" class="expanded-menu-item" (click)="isMenuOpen = false">BPI Online</a>
+    @if(user.role === 'admin' || user.role === 'admin_dept' || user.role === 'ADMIN') {
+    <a routerLink="/reports" class="expanded-menu-item" (click)="isMenuOpen = false">Laporan & Analitik</a>
+    }
     <div class="expanded-menu-logout">
       <a href="#" class="logout-bar" (click)="showLogoutConfirm($event)">Log Out</a>
     </div>

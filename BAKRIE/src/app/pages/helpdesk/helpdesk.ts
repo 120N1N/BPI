@@ -12,7 +12,7 @@ import { HelpdeskService } from '../../core/services/helpdesk.service';
   styleUrl: './helpdesk.css'
 })
 export class HelpdeskComponent implements OnInit {
-  isSidebarOpen = true;
+  isSidebarOpen = false;
   activeMenu = 'dashboard';
   expandedMenu: string | null = null;
   loginId: string = '';
@@ -91,6 +91,22 @@ export class HelpdeskComponent implements OnInit {
     this.refreshData();
   }
 
+  // --- ANALYTICS ---
+  _filterMonth: string = (new Date().getMonth() + 1).toString().padStart(2, '0');
+  _filterYear: string = new Date().getFullYear().toString();
+
+  get filterMonth() { return this._filterMonth; }
+  set filterMonth(val: string) {
+    this._filterMonth = val;
+    if (this.isAnalyticsMenu()) this.refreshAnalytics();
+  }
+
+  get filterYear() { return this._filterYear; }
+  set filterYear(val: string) {
+    this._filterYear = val;
+    if (this.isAnalyticsMenu()) this.refreshAnalytics();
+  }
+
   // --- KNOWLEDGE BASE ---
   searchQuery = '';
   faqArticles = [
@@ -111,13 +127,30 @@ export class HelpdeskComponent implements OnInit {
     );
   }
 
-  get filteredTickets() {
-    let tickets = this.dummyTickets;
+  private get baseTickets() {
+    let result = this.dummyTickets;
+    const user = this.helpdeskService.getCurrentUser();
+    
+    if (this.activeMenu.startsWith('user-')) {
+      result = result.filter(t => t.requesterId === user?.id);
+    } else if (this.currentRole === 'ADMIN') {
+      if (user?.department && user.department !== 'unknown') {
+        result = result.filter(t => 
+          t.departmentTarget === user.department || 
+          (t.departmentTarget === 'IT' && (user.department === 'it_infra' || user.department === 'it_sistem'))
+        );
+      }
+    } else if (this.currentRole === 'STAFF') {
+      result = result.filter(t => t.assignedTo === user?.id);
+    }
+    return result;
+  }
 
-    // Filter by Role
-    if (this.currentRole === 'USER') {
-      tickets = tickets.filter(t => t.requesterId === this.helpdeskService.getCurrentUser()?.id);
-      
+  get filteredTickets() {
+    let tickets = this.baseTickets;
+
+    // Filter by Menu/Status based on Role
+    if (this.activeMenu.startsWith('user-')) {
       if (this.activeMenu === 'user-menunggu-approval') {
         tickets = tickets.filter(t => t.status === 'PENDING_APPROVAL');
       } else if (this.activeMenu === 'user-selesai') {
@@ -125,7 +158,6 @@ export class HelpdeskComponent implements OnInit {
       }
     } 
     else if (this.currentRole === 'ADMIN') {
-      // Admin sees all by default, filter by status based on menu
       const statusMap: any = {
         'admin-open': 'OPEN',
         'admin-wait': 'WAIT',
@@ -138,14 +170,11 @@ export class HelpdeskComponent implements OnInit {
         'admin-rejected': 'REJECTED',
         'admin-closed': 'CLOSED'
       };
-      
       if (statusMap[this.activeMenu]) {
         tickets = tickets.filter(t => t.status === statusMap[this.activeMenu]);
       }
     }
     else if (this.currentRole === 'STAFF') {
-      // Staff typically sees tickets assigned to their department or themselves
-      // For this dummy, we just filter by status for the staff menus
       const statusMap: any = {
         'staff-assigned': 'ASSIGNED',
         'staff-inprogress': 'IN_PROGRESS',
@@ -154,13 +183,20 @@ export class HelpdeskComponent implements OnInit {
         'staff-rejected': 'REJECTED',
         'staff-closed': 'CLOSED'
       };
-
       if (statusMap[this.activeMenu]) {
         tickets = tickets.filter(t => t.status === statusMap[this.activeMenu]);
       }
     }
 
     return tickets;
+  }
+
+  get ticketsForSurvey() {
+    return this.dummyTickets.filter(t => 
+      t.requesterId === this.helpdeskService.getCurrentUser()?.id && 
+      t.status === 'CLOSED' && 
+      !t.csatRating
+    );
   }
 
   isParentActive(menuId: string): boolean {
@@ -208,14 +244,164 @@ export class HelpdeskComponent implements OnInit {
   }
 
   refreshData() {
-    this.dummyTickets = this.helpdeskService.getAllTickets();
-    this.dummyStaff = [
-      { name: 'Teknisi A', dept: 'IT Support', status: 'FREE', load: 0 },
-      { name: 'Teknisi B', dept: 'IT Support', status: 'BUSY', load: 3 },
-      { name: 'Staff GA 1', dept: 'General Affair', status: 'BUSY', load: 1 },
-      { name: 'Staff HR', dept: 'Human Resources', status: 'FREE', load: 0 }
-    ];
+    this.helpdeskService.getAllTickets().subscribe({
+      next: (backendTickets: any[]) => {
+        // Map data dari format Backend ke format Dummy Frontend (supaya HTML tidak perlu banyak berubah)
+        this.dummyTickets = backendTickets.map(t => {
+          let deptName = (t.department?.name || '').toLowerCase();
+          let deptTarget = 'it_infra';
+          if (deptName.includes('infra')) deptTarget = 'it_infra';
+          else if (deptName.includes('sistem') || deptName.includes('system')) deptTarget = 'it_sistem';
+          else if (deptName.includes('ga') || deptName.includes('general')) deptTarget = 'ga';
+          else if (deptName.includes('hr') || deptName.includes('human')) deptTarget = 'hr';
+          else if (deptName.includes('maintenance')) deptTarget = 'maintenance';
+          else if (deptName.includes('direksi')) deptTarget = 'direksi';
+          else deptTarget = 'it_infra';
+
+          return {
+            id: t.id,
+            ticketCode: t.ticket_code || t.id, // Untuk display
+            title: t.title,
+            description: t.description,
+            category: t.category,
+            // Nama departemen untuk display UI
+            department: t.department?.name || 'IT Infra',
+            // Mapping balik nama department DB ke value dropdown
+            departmentTarget: deptTarget,
+            priority: t.priority,
+          status: t.status,
+            requesterId: t.creator?.id || '',
+            requesterName: t.creator?.name || 'Unknown User',
+            assignedTo: t.assignee?.id || '',
+            assignedToName: t.assignee?.name || '',
+            date: new Date(t.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            createdAt: t.createdAt,
+            csatRating: t.survey?.rating || 0
+          };
+        });
+        
+        this.dummyStaff = this.helpdeskService.getDynamicStaff(this.dummyTickets);
+        
+        if (this.isAnalyticsMenu()) {
+          this.refreshAnalytics();
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load tickets from API', err);
+        // Fallback or show error
+      }
+    });
   }
+  
+  refreshAnalytics() {
+    let month: number | undefined = undefined;
+    let year: number | undefined = undefined;
+    
+    if (this.filterMonth && this.filterMonth !== 'all') month = parseInt(this.filterMonth);
+    if (this.filterYear && this.filterYear !== 'all') year = parseInt(this.filterYear);
+    
+    this.helpdeskService.getTicketReports(month, year).subscribe({
+      next: (res: any) => {
+        let closedCount = 0;
+        let inProgressCount = 0;
+        let holdCount = 0;
+        let openCount = 0;
+        
+        if (res.byStatus) {
+            res.byStatus.forEach((s: any) => {
+                if (s.status === 'CLOSED') closedCount += s.count;
+                if (['IN_PROGRESS', 'ASSIGNED'].includes(s.status)) inProgressCount += s.count;
+                if (['HOLD', 'WAIT', 'PENDING_APPROVAL'].includes(s.status)) holdCount += s.count;
+                if (['OPEN', 'FORWARDED'].includes(s.status)) openCount += s.count;
+            });
+        }
+        
+        let totalFromStatus = openCount + inProgressCount + holdCount + closedCount;
+        let total = totalFromStatus > 0 ? totalFromStatus : (res.summary?.monthly || 0);
+        
+        // Bulletproof fallback: if backend says 0 but we have tickets in our list, use the list!
+        if (total === 0 && this.analyticsTickets.length > 0) {
+            closedCount = 0; inProgressCount = 0; holdCount = 0; openCount = 0;
+            this.analyticsTickets.forEach(t => {
+                if (t.status === 'CLOSED') closedCount++;
+                else if (['IN_PROGRESS', 'ASSIGNED'].includes(t.status)) inProgressCount++;
+                else if (['HOLD', 'WAIT', 'PENDING_APPROVAL'].includes(t.status)) holdCount++;
+                else if (['OPEN', 'FORWARDED'].includes(t.status)) openCount++;
+            });
+            total = closedCount + inProgressCount + holdCount + openCount;
+        }
+        
+        const getPct = (count: number) => total > 0 ? Math.round((count / total) * 100) : 0;
+        
+        this.dashboardStats = {
+          total: total,
+          csat: { rating: '4.8', count: 12 }, // Placeholder since API doesn't return CSAT yet
+          counts: {
+            active: openCount + inProgressCount + holdCount,
+            resolved: closedCount
+          },
+          status: {
+            closed: getPct(closedCount),
+            inProgress: getPct(inProgressCount),
+            hold: getPct(holdCount),
+            open: getPct(openCount)
+          },
+          trend: {
+            m1: Math.floor(total * 0.2), m2: Math.floor(total * 0.4), m3: Math.floor(total * 0.3), m4: Math.floor(total * 0.1),
+            m1Pct: 40, m2Pct: 80, m3Pct: 60, m4Pct: 20
+          }
+        };
+      },
+      error: (err: any) => {
+        console.error('Failed to load analytics from API, falling back to local data', err);
+        // Fallback for Role Simulator (where JWT token is User but UI is Admin)
+        let closed = 0, inprog = 0, hold = 0, open = 0;
+        this.analyticsTickets.forEach(t => {
+            if (t.status === 'CLOSED') closed++;
+            else if (['IN_PROGRESS', 'ASSIGNED'].includes(t.status)) inprog++;
+            else if (['HOLD', 'WAIT', 'PENDING_APPROVAL'].includes(t.status)) hold++;
+            else if (['OPEN', 'FORWARDED'].includes(t.status)) open++;
+        });
+        const total = closed + inprog + hold + open;
+        const getPct = (c: number) => total > 0 ? Math.round((c / total) * 100) : 0;
+        
+        this.dashboardStats = {
+          total: total,
+          csat: { rating: '4.8', count: 12 },
+          counts: { active: open + inprog + hold, resolved: closed },
+          status: { closed: getPct(closed), inProgress: getPct(inprog), hold: getPct(hold), open: getPct(open) },
+          trend: { m1: 0, m2: 0, m3: 0, m4: 0, m1Pct: 0, m2Pct: 0, m3Pct: 0, m4Pct: 0 }
+        };
+      }
+    });
+  }
+
+  get analyticsTickets() {
+    let base = this.baseTickets;
+    
+    if (this.filterMonth || this.filterYear) {
+      base = base.filter(t => {
+        if (!t.createdAt) return true;
+        const d = new Date(t.createdAt);
+        const m = (d.getMonth() + 1).toString().padStart(2, '0');
+        const y = d.getFullYear().toString();
+        
+        if (this.filterMonth && this.filterMonth !== 'all' && m !== this.filterMonth) return false;
+        if (this.filterYear && this.filterYear !== 'all' && y !== this.filterYear) return false;
+        
+        return true;
+      });
+    }
+    return base;
+  }
+
+  dashboardStats: any = {
+    total: 0,
+    csat: { rating: '0.0', count: 0 },
+    counts: { active: 0, resolved: 0 },
+    status: { closed: 0, inProgress: 0, hold: 0, open: 0 },
+    trend: { m1: 0, m2: 0, m3: 0, m4: 0, m1Pct: 0, m2Pct: 0, m3Pct: 0, m4Pct: 0 }
+  };
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
@@ -238,21 +424,34 @@ export class HelpdeskComponent implements OnInit {
       alert('Mohon lengkapi semua field yang wajib (*)');
       return;
     }
+    
+    // Convert dropdown value to DB name
+    let dbDeptName = 'IT Infrastruktur';
+    if (this.newTicket.department === 'it_sistem') dbDeptName = 'IT System';
+    else if (this.newTicket.department === 'ga') dbDeptName = 'General Affair';
+    else if (this.newTicket.department === 'hr') dbDeptName = 'Human Resources';
+    else if (this.newTicket.department === 'maintenance') dbDeptName = 'Maintenance';
+    else if (this.newTicket.department === 'direksi') dbDeptName = 'Direksi';
 
     this.helpdeskService.createTicket({
       title: this.newTicket.title,
       category: this.newTicket.category,
-      department: this.newTicket.department,
+      department_name: dbDeptName,
       description: this.newTicket.description,
       priority: this.newTicket.priority
+    }).subscribe({
+      next: (res) => {
+        // Reset form
+        this.newTicket = { title: '', category: '', department: '', description: '', priority: 'P3' };
+        
+        // Refresh data and navigate to list
+        this.refreshData();
+        this.setActiveMenu('user-semua-tiket');
+      },
+      error: (err) => {
+        alert('Gagal membuat tiket: ' + (err.error?.message || err.message));
+      }
     });
-
-    // Reset form
-    this.newTicket = { title: '', category: '', department: '', description: '', priority: 'P3' };
-    
-    // Refresh data and navigate to list
-    this.refreshData();
-    this.setActiveMenu('user-semua-tiket');
   }
 
   viewDetail(ticket: any) {
@@ -299,86 +498,108 @@ export class HelpdeskComponent implements OnInit {
       alert('Silakan pilih rating bintang terlebih dahulu!');
       return;
     }
-    // Update status tiket jadi CLOSED di backend
-    this.helpdeskService.updateTicketStatus(this.activeSurveyId!, 'CLOSED', `Survey diisi dengan rating ${this.surveyRating} bintang. Komentar: ${this.actionReason}`);
-    
-    alert(`Terima kasih! Survey untuk tiket ${this.activeSurveyId} berhasil dikirim.`);
-    this.activeSurveyId = null;
-    this.refreshData();
+    this.helpdeskService.submitSurvey(this.activeSurveyId!, this.surveyRating, this.actionReason).subscribe({
+      next: () => {
+        alert(`Terima kasih! Survey untuk tiket ${this.activeSurveyId} berhasil dikirim.`);
+        this.activeSurveyId = null;
+        this.refreshData();
+      },
+      error: (err) => {
+        alert('Gagal mengirim survey: ' + err.message);
+      }
+    });
   }
 
   processTicketAction() {
     if (!this.selectedTicket) return;
+
+    let targetStatus: string = '';
+    let notes: string = '';
+    let assignedTo: string | undefined = undefined;
+    let forwardDept: string | undefined = undefined;
 
     if (this.actionType === 'ASSIGN') {
       if (!this.assignToStaffId) {
         alert('Pilih teknisi terlebih dahulu!');
         return;
       }
-      this.helpdeskService.updateTicketStatus(
-        this.selectedTicket.id, 
-        'ASSIGNED', 
-        `Ditugaskan kepada ${this.assignToStaffId}`, 
-        this.assignToStaffId
-      );
+      targetStatus = 'ASSIGNED';
+      notes = `Ditugaskan kepada teknisi (ID: ${this.assignToStaffId})`;
+      assignedTo = this.assignToStaffId;
     } 
     else if (this.actionType === 'WAIT') {
-      this.helpdeskService.updateTicketStatus(this.selectedTicket.id, 'WAIT', 'Dimasukkan ke antrean karena teknisi penuh');
+      targetStatus = 'WAIT';
+      notes = 'Dimasukkan ke antrean karena teknisi penuh';
     }
     else if (this.actionType === 'FORWARD') {
       if (!this.forwardToDept) {
         alert('Pilih departemen tujuan terlebih dahulu!');
         return;
       }
-      this.helpdeskService.updateTicketStatus(this.selectedTicket.id, 'FORWARDED', `Diteruskan ke departemen ${this.forwardToDept}`);
-      // In real backend, this would update the departmentTarget field
+      targetStatus = 'FORWARDED';
+      notes = `Diteruskan ke departemen ${this.forwardToDept}`;
+      forwardDept = this.forwardToDept;
     }
     else if (this.actionType === 'HOLD') {
       if (!this.actionReason) {
         alert('Alasan HOLD wajib diisi sesuai SOP!');
         return;
       }
-      this.helpdeskService.updateTicketStatus(this.selectedTicket.id, 'HOLD', `Menunggu / Hold: ${this.actionReason}`);
+      targetStatus = 'HOLD';
+      notes = `Menunggu / Hold: ${this.actionReason}`;
     }
     else if (this.actionType === 'IN_PROGRESS') {
-      this.helpdeskService.updateTicketStatus(this.selectedTicket.id, 'IN_PROGRESS', 'Teknisi mulai mengerjakan tiket');
+      targetStatus = 'IN_PROGRESS';
+      notes = 'Teknisi mulai mengerjakan tiket';
     }
     else if (this.actionType === 'SOLVE') {
-      if (!this.evidenceText) {
+      if (!this.actionReason) {
         alert('Evidence / Deskripsi perbaikan wajib diisi sesuai SOP!');
         return;
       }
-      this.helpdeskService.updateTicketStatus(this.selectedTicket.id, 'PENDING_APPROVAL', `Pekerjaan Selesai: ${this.evidenceText}`);
+      targetStatus = 'PENDING_APPROVAL';
+      notes = `Pekerjaan Selesai: ${this.actionReason}`;
     }
     else if (this.actionType === 'APPROVE') {
-      this.helpdeskService.updateTicketStatus(this.selectedTicket.id, 'CLOSED', 'Tiket disetujui dan ditutup oleh Pelapor');
-      alert('Tiket berhasil ditutup! Mohon isi Survey Kepuasan di menu Survey.');
+      targetStatus = 'CLOSED';
+      notes = 'Tiket disetujui dan ditutup oleh Pelapor';
     }
     else if (this.actionType === 'REJECT') {
       if (!this.actionReason) {
         alert('Alasan penolakan wajib diisi!');
         return;
       }
-      this.helpdeskService.updateTicketStatus(this.selectedTicket.id, 'REJECTED', `Ditolak oleh Pelapor: ${this.actionReason}`);
+      targetStatus = 'REJECTED';
+      notes = `Ditolak oleh Pelapor: ${this.actionReason}`;
     }
 
-    if (this.actionType !== 'APPROVE') {
-      alert(`Tiket ${this.selectedTicket.id} berhasil diproses!`);
-    }
-    this.refreshData(); // Refresh list to get updated data from localstorage
-    
-    // Auto-redirect to the corresponding tab so the user sees the ticket didn't vanish
-    if (this.currentRole === 'STAFF') {
-      if (this.actionType === 'IN_PROGRESS') this.setActiveMenu('staff-inprogress');
-      else if (this.actionType === 'HOLD') this.setActiveMenu('staff-hold');
-      else if (this.actionType === 'SOLVE') this.setActiveMenu('staff-pending');
-    } else if (this.currentRole === 'ADMIN') {
-      if (this.actionType === 'ASSIGN') this.setActiveMenu('admin-assigned');
-      else if (this.actionType === 'FORWARD') this.setActiveMenu('admin-forwarded');
-      else if (this.actionType === 'WAIT') this.setActiveMenu('admin-wait');
-    }
+    this.helpdeskService.updateTicketStatus(this.selectedTicket.id, targetStatus, notes, assignedTo, forwardDept).subscribe({
+      next: () => {
+        if (this.actionType === 'APPROVE') {
+          alert('Tiket berhasil ditutup! Mohon isi Survey Kepuasan di menu Survey.');
+        } else {
+          alert(`Tiket berhasil diproses!`);
+        }
+        
+        this.refreshData(); // Refresh list to get updated data from API
+        
+        // Auto-redirect to the corresponding tab so the user sees the ticket didn't vanish
+        if (this.currentRole === 'STAFF') {
+          if (this.actionType === 'IN_PROGRESS') this.setActiveMenu('staff-inprogress');
+          else if (this.actionType === 'HOLD') this.setActiveMenu('staff-hold');
+          else if (this.actionType === 'SOLVE') this.setActiveMenu('staff-pending');
+        } else if (this.currentRole === 'ADMIN') {
+          if (this.actionType === 'ASSIGN') this.setActiveMenu('admin-assigned');
+          else if (this.actionType === 'FORWARD') this.setActiveMenu('admin-forwarded');
+          else if (this.actionType === 'WAIT') this.setActiveMenu('admin-wait');
+        }
 
-    this.closeModal();
+        this.closeModal();
+      },
+      error: (err) => {
+        alert('Gagal mengupdate tiket: ' + (err.error?.message || err.message));
+      }
+    });
   }
 
   toggleAccordion(menu: string) {
@@ -389,8 +610,25 @@ export class HelpdeskComponent implements OnInit {
     }
   }
 
+  deleteTicket(id: string) {
+    if (!confirm('Apakah Anda yakin ingin menghapus tiket ini? Tindakan ini tidak dapat dibatalkan.')) return;
+    
+    this.helpdeskService.deleteTicket(id).subscribe({
+      next: () => {
+        alert('Tiket berhasil dihapus!');
+        this.refreshData();
+      },
+      error: (err) => {
+        alert('Gagal menghapus tiket: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
   setActiveMenu(menu: string) {
     this.activeMenu = menu;
+    if (this.isAnalyticsMenu()) {
+      this.refreshAnalytics();
+    }
   }
 
   // Helper functions to categorize the current active menu
