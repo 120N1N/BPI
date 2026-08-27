@@ -1,16 +1,15 @@
 # Ekosistem Proyek BPI (Bakrie)
 
-Dokumentasi pusat untuk seluruh ekosistem aplikasi BPI. Repositori ini memayungi berbagai solusi teknologi yang saling terintegrasi, mulai dari platform operasional Desktop/Web hingga aksesibilitas aplikasi Mobile (Android), serta sistem manajemen Helpdesk.
+Dokumentasi pusat untuk aplikasi BPI. Repositori ini memuat dua solusi utama yang terintegrasi, yaitu platform operasional berbasis Web/Desktop dan aplikasi Mobile berbasis Android.
 
 ## Fitur Utama (Berdasarkan Modul)
 - **BAKRIE (Aplikasi Utama / Desktop-Web)**: Antarmuka terpusat untuk mengelola seluruh operasional BPI. Menyediakan fungsionalitas pengolahan data, pelaporan (charting), dan manajemen pengguna.
 - **BAKRIE-ANDROID (Aplikasi Mobile)**: Ekstensi fungsionalitas sistem utama yang dioptimalkan untuk perangkat seluler. Memungkinkan pengguna untuk mengakses dan mengelola operasional secara _real-time_ dari _smartphone_ Android.
-- **BakrieHelpdesk**: Sistem manajemen keluhan dan dukungan teknis (IT Support) untuk melacak dan menyelesaikan masalah secara efisien, didukung dengan manajemen basis data yang terstruktur.
 
 ## Teknologi (Tech Stack)
 - **Frontend**: Angular, Capacitor (untuk _mobile wrapping_ di Android)
 - **Backend**: Node.js (Express)
-- **Database**: SQL Server (Berdasarkan project Helpdesk), serta potensi RDBMS lainnya (MySQL/PostgreSQL).
+- **Database**: SQL Server / RDBMS
 - **Tools Tambahan**: Chart.js, ng2-charts (Visualisasi data), Postman (API Testing)
 
 ## Struktur Folder
@@ -23,9 +22,6 @@ BPI/
 │   ├── android/         # Build source untuk Android native
 │   ├── backend/         # API terdedikasi untuk mobile
 │   └── src/             # Komponen UI Mobile
-├── BakrieHelpdesk/      # Solusi .NET & SQL Server untuk sistem Helpdesk
-├── BIKIRIE/             # Sub-modul / Proyek alternatif Angular
-├── readme/              # Direktori dokumentasi ini
 └── README.md            # Dokumentasi utama (File ini)
 ```
 
@@ -36,7 +32,6 @@ Sebelum memulai, pastikan Anda telah menginstal beberapa perangkat lunak berikut
 - **Node.js** (Disarankan versi 18 LTS atau 20 LTS)
 - **Angular CLI** (Untuk menjalankan perintah-perintah Angular secara lokal)
 - **Android Studio** (Hanya diperlukan jika ingin melakukan *build* atau emulator pada proyek `BAKRIE-ANDROID`)
-- **SQL Server / Visual Studio** (Untuk membuka proyek `BakrieHelpdesk`)
 
 ### Langkah Instalasi
 1. Buka terminal Anda dan kloning/buka repositori workspace BPI ke mesin lokal.
